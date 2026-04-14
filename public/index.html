@@ -3,85 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSTI 大学生人格测试</title>
+    <title>CSTI 大学生人格测试 - 豪华完整版</title>
     <style>
         body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 20px; display: flex; justify-content: center; }
-        #app { max-width: 500px; width: 100%; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px; box-sizing: border-box; }
+        #app { max-width: 550px; width: 100%; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px; box-sizing: border-box; }
         h1, h2 { text-align: center; color: #2c3e50; }
-        .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; background: #e9ecef; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; text-align: left; }
+        .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; background: #e9ecef; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; transition: 0.3s; text-align: left; }
         .btn:hover { background: #007bff; color: #fff; }
-        .btn-primary { background: #007bff; color: white; text-align: center; font-weight: bold; }
+        .btn-primary { background: #007bff; color: white; text-align: center; font-weight: bold; font-size: 16px; }
         .btn-primary:hover { background: #0056b3; }
         .progress { height: 8px; background: #e9ecef; border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
         .progress-bar { height: 100%; background: #007bff; width: 0%; transition: width 0.3s; }
         .hidden { display: none; }
-        .result-card { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 20px; }
-        .tag { display: inline-block; padding: 4px 8px; background: #ffeeba; color: #856404; border-radius: 4px; font-size: 14px; margin-bottom: 10px; }
+        .result-card { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 20px; border-left: 5px solid #007bff; }
+        .tag { display: inline-block; padding: 6px 12px; background: #ffeeba; color: #856404; border-radius: 20px; font-size: 16px; font-weight: bold; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div id="app">
     <div id="welcome-page">
-        <h1>CSTI 大学生人格测试</h1>
-        <p style="text-align: center; color: #666;">以 MBTI 为壳，宿舍生活为核的生存画像测试。</p>
-        <button class="btn btn-primary" onclick="startTest()">开始测试</button>
-        <p style="font-size: 12px; color: #999; margin-top: 30px; text-align: center;">⚠️ 仅供娱乐，严禁作为宿舍分配依据。</p>
+        <h1>CSTI 大学生生存图鉴</h1>
+        <p style="text-align: center; color: #666; line-height: 1.6;">全新升级版！12道灵魂拷问，16种奇葩室友。<br>测测你到底属于哪种“大学生物”？</p>
+        <button class="btn btn-primary" onclick="startTest()">开启测评</button>
+        <p style="font-size: 12px; color: #999; margin-top: 30px; text-align: center;">⚠️ 仅供娱乐，请勿用于室友相亲或��选奖学金。</p>
     </div>
 
     <div id="quiz-page" class="hidden">
         <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
-        <h2 id="question-text" style="font-size: 18px; margin-bottom: 20px;"></h2>
+        <p style="text-align: right; font-size: 12px; color: #999; margin: 0 0 10px 0;" id="question-count"></p>
+        <h2 id="question-text" style="font-size: 18px; margin-bottom: 20px; text-align: left;"></h2>
         <div id="options-container"></div>
     </div>
 
     <div id="result-page" class="hidden">
-        <h2>你的 CSTI 类型是</h2>
-        <h1 id="result-type" style="color: #007bff; font-size: 36px; margin: 10px 0;"></h1>
+        <h2 style="margin-bottom: 5px;">你的 CSTI 鉴定报告</h2>
+        <h1 id="result-type" style="color: #007bff; font-size: 42px; margin: 10px 0;"></h1>
         <div class="tag" id="result-title"></div>
         
         <div class="result-card">
-            <p><strong>📝 核心判词：</strong><br><span id="result-desc"></span></p>
-            <p><strong>🛏️ 适合床位：</strong><br><span id="result-bed"></span></p>
-            <p><strong>💡 生存指南：</strong><br><span id="result-guide"></span></p>
+            <p><strong>🎭 核心判词：</strong><br><span id="result-desc" style="color: #555;"></span></p>
+            <p><strong>🛏️ 宜居床位：</strong><br><span id="result-bed" style="color: #e83e8c;"></span></p>
+            <p><strong>💡 生存指南：</strong><br><span id="result-guide" style="color: #28a745;"></span></p>
         </div>
         
-        <button class="btn btn-primary" style="margin-top: 20px;" onclick="location.reload()">再测一次</button>
+        <button class="btn btn-primary" style="margin-top: 30px;" onclick="location.reload()">再测一次 / 骗室友测</button>
     </div>
 </div>
 
 <script>
     const questions = [
+        { dim: 'CS', text: "早八的课，你通常是什么出勤状态？", options: [
+            { text: "提前10分钟到，还能抢到前排并吃完早餐", score: 0 }, 
+            { text: "踩点狂奔进教室，找个隐蔽角落坐下", score: 3 },
+            { text: "让室友帮忙答到，人还在被窝里", score: 7 }, 
+            { text: "早八？什么早八？这学期我有早八？", score: 10 }
+        ]},
         { dim: 'CS', text: "明天是周六且没课没约，你会几点起床？", options: [
-            { text: "7:30 自然醒，甚至想去吃早饭", score: 0 }, { text: "9:30 醒，躺到 10:30 起", score: 3 },
-            { text: "11:30 醒，直接点外卖", score: 7 }, { text: "醒？我的周六从下午三点开始", score: 10 }
+            { text: "生物钟定型了，7:30自然醒", score: 0 }, 
+            { text: "9点多醒，在床上玩手机到11点", score: 3 },
+            { text: "12点半直接醒来点外卖吃午饭", score: 7 }, 
+            { text: "我的周末一般是从下午三点开始的", score: 10 }
         ]},
-        { dim: 'TP', text: "小组作业分好组后，你通常会？", options: [
-            { text: "主动建群、分任务、定 DDL", score: 0 }, { text: "等组长安排，按时完成自己部分", score: 3 },
-            { text: "群里潜水，被@了才领任务", score: 7 }, { text: "一直装死，直到组长私聊你", score: 10 }
+        { dim: 'CS', text: "晚上几点，你会觉得“夜生活才刚刚开始”？", options: [
+            { text: "10点，已经洗漱完毕准备进入深度睡眠", score: 0 }, 
+            { text: "11点半，再刷两个视频就睡", score: 3 },
+            { text: "凌晨1点，刚和室友点好烧烤外卖", score: 7 }, 
+            { text: "凌晨3点，戴着耳机在峡谷连胜/连跪", score: 10 }
         ]},
-        { dim: 'IE', text: "周五晚上，你更想怎么过？", options: [
-            { text: "一个人看剧/打游戏/看书", score: 0 }, { text: "和一两个好朋友吃饭聊天", score: 3 },
-            { text: "宿舍/社团一群人出去聚餐唱 K", score: 7 }, { text: "赶场子，一晚上跑三个局", score: 10 }
+        { dim: 'TP', text: "宿舍纸巾用完了/该交电费了，你一般怎么做？", options: [
+            { text: "主动发现，立马算账并在群里收款", score: 0 }, 
+            { text: "谁提出来了，我立马转账配合", score: 3 },
+            { text: "假装没发现，默默掏出自己私藏的抽纸", score: 7 }, 
+            { text: "能蹭一天是一天，死皮赖脸借室友的用", score: 10 }
         ]},
-        { dim: 'NL', text: "关于未来（升学/工作），你的状态是？", options: [
-            { text: "已经有一条清晰路径在推进了", score: 0 }, { text: "大概有方向，但具体还没想好", score: 3 },
-            { text: "偶尔焦虑一下，然后继续躺着", score: 7 }, { text: "走一步看一步，毕业了再说", score: 10 }
+        { dim: 'TP', text: "万恶的小组作业分好组后，你通常的角色是？", options: [
+            { text: "掌控全局的Leader，分任务定DDL", score: 0 }, 
+            { text: "本分打工人，分我���么活我就干什么", score: 3 },
+            { text: "群里装死潜水，非要@我才勉强认领", score: 7 }, 
+            { text: "终极混子，最后在PPT上加上我的名字就行", score: 10 }
+        ]},
+        { dim: 'TP', text: "考试周的复习大业，你的策略是？", options: [
+            { text: "提前三周制定严密计划，甚至能给别人讲题", score: 0 }, 
+            { text: "按部就班自己背自己的书", score: 3 },
+            { text: "到处求抱大腿，跪求学霸的高清划重点笔记", score: 7 }, 
+            { text: "在朋友圈转发锦鲤和孔子，主打玄学过关", score: 10 }
+        ]},
+        { dim: 'IE', text: "走在校园路上，远远看到一个半熟不熟的同学，你会？", options: [
+            { text: "立刻低头玩手机或绕道，祈祷别对上眼神", score: 0 }, 
+            { text: "眼神如果不小心撞上，就尴尬地挤出一个微笑", score: 3 },
+            { text: "主动挥手大喊‘嗨’，然后简单寒暄几句", score: 7 }, 
+            { text: "直接冲上去拦住，顺便聊十分钟八卦再走", score: 10 }
+        ]},
+        { dim: 'IE', text: "周五晚上没有作业，你最完美的安排是？", options: [
+            { text: "一个人戴着耳机看电影/打游戏，谁也别理我", score: 0 }, 
+            { text: "和关系最好的1-2个朋友去吃顿好的", score: 3 },
+            { text: "和社团/班级的一大群人出去轰趴唱K", score: 7 }, 
+            { text: "疯狂赶场子，上半夜去剧本杀，下半夜去蹦迪", score: 10 }
+        ]},
+        { dim: 'IE', text: "宿舍熄灯后的夜聊环节，你的参与度是？", options: [
+            { text: "戴上降噪耳机，心里默念‘吵死了让我睡’", score: 0 }, 
+            { text: "偶尔附和两句‘确实’、‘太离谱了’", score: 3 },
+            { text: "疯狂输出自己白天收集到的校园八卦", score: 7 }, 
+            { text: "直接化身主持人，抛出话题并挨个采访室友", score: 10 }
+        ]},
+        { dim: 'NL', text: "对于未来的规划（考研/保研/考公/就业），现在的你？", options: [
+            { text: "已经有极其清晰的目标，并且正在按进度落实", score: 0 }, 
+            { text: "大概有个模糊的方向，但还没开始行动", score: 3 },
+            { text: "一想到这个就极度焦虑，然后打开短视频逃避", score: 7 }, 
+            { text: "完全没想过，走一步看一步，船到桥头自然直", score: 10 }
+        ]},
+        { dim: 'NL', text: "每学期的选修课你是怎么选的？", options: [
+            { text: "研究培养方案，精准计算学分，甚至蹭硬课", score: 0 }, 
+            { text: "听学长学姐说哪门课老师不点名就选哪门", score: 3 },
+            { text: "随缘瞎点，系统给我分什么我就上什么", score: 7 }, 
+            { text: "经常错过选课时间，最后捡别人剩下的硬骨头", score: 10 }
+        ]},
+        { dim: 'NL', text: "你的生活费/银行卡余额通常处于什么状态？", options: [
+            { text: "有严格的记账习惯，月底甚至还能存下一笔钱", score: 0 }, 
+            { text: "大概心里有数，能平稳撑到下个月初", score: 3 },
+            { text: "中旬开始抠搜，每次点外卖前都要深呼吸", score: 7 }, 
+            { text: "月初神豪，月中平民，月末靠室友投喂或花呗度日", score: 10 }
         ]}
     ];
 
     const typeDict = {
-        "CTIN": { title: "综测战神", desc: "作息稳、能力顶、目标清、爱独处。教室第一排不动产。", bed: "靠窗学霸位", guide: "保持节奏，但也别忘了偶尔摆烂有益身心健康。" },
-        "STEL": { title: "快乐修狗", desc: "主打陪伴。上课给室友占座，来人间凑数和提供情绪价值。", bed: "门口迎宾位", guide: "你的情绪价值很宝贵，不是谁都配拥有。" },
-        "SPIL": { title: "峡谷召唤师", desc: "学费主要交电费网费。王者印记全勤，原神地图100%。", bed: "靠插座位", guide: "记得每个月至少出一次校门，光合作用有益健康。" },
-        "CPEL": { title: "气氛组领班", desc: "哪都有他，但哪都没干啥。主要工作是陪聊陪吃陪拿快递。", bed: "任意游走位", guide: "气氛担当也是一种核心竞争力。" }
+        "CTIN": { title: "综测战神", desc: "作息稳、能力顶、目标清、爱独处。教室第一排的不动产，辅导员眼中的天降紫微星。", bed: "靠窗学霸位", guide: "适当把工作分给室友，你的头发会感谢你。" },
+        "CTIL": { title: "迷茫卷王", desc: "每天都在图书馆呆到闭馆，但你问他以后干嘛他完全不知道。主打一个瞎忙乎。", bed: "安静内侧位", guide: "停下来想一想再跑，比闭着眼睛狂奔有用。" },
+        "CTEN": { title: "高配院草/花", desc: "极其自律且八面玲珑。朋友圈全是竞赛获奖和大佬合影，学弟学妹眼中的神。", bed: "近门社交位", guide: "给普通人留条活路吧，不用什么局都去参加。" },
+        "CTEL": { title: "宿舍老妈子", desc: "一边催室友早点睡，一边帮室友拿外卖。操着居委会的心，长着小孩子的脑。", bed: "下铺总管位", guide: "放下助人情结，尊重室友命运。" },
+        "CPIN": { title: "扫地神僧", desc: "平时透明，不争不抢，期末出分直接专业第一。偷偷考完雅思你都发现不了。", bed: "上铺隐蔽位", guide: "苟富贵，勿相忘。多给室友透点复习资料。" },
+        "CPIL": { title: "极致透明人", desc: "全勤出席，存在感为零。毕业照上最模糊的影子，辅导员三年都没记住你的���字。", bed: "角落隐身位", guide: "你的存在感低是超能力，以后适合去干特工。" },
+        "CPEN": { title: "校园情报贩子", desc: "干啥啥不行，吃瓜第一名。知道全系所有人的情感八卦和黑历史，熟人遍布全校。", bed: "下铺情报站", guide: "少吃瓜，多看书，八卦不能写进简历。" },
+        "CPEL": { title: "首席气氛组", desc: "毫无攻击性的乐天派。主要工作是陪聊、陪吃、陪拿快递，聚餐缺了你这顿饭都不香。", bed: "全图游走位", guide: "气氛担当也是核心竞争力，建议以后做公关。" },
+        "STIN": { title: "DDL极限特工", desc: "平时昼夜颠倒查无此人，交作业前12小时智商爆表手速拉满，创造生命奇迹。", bed: "深夜电竞位", guide: "早点开工吧，你的心脏总有一天承受不了这种极限拉扯。" },
+        "STIL": { title: "退堂鼓艺术家", desc: "每天都在制定新计划重新做人，每天都在被窝里选择放弃。拖延症晚期病友。", bed: "床帘自闭位", guide: "把‘明天再做’改成‘今天先做5分钟’。" },
+        "STEN": { title: "局气交际花", desc: "早八起不来，夜场不缺席。天天都在请客或被请，永远在赶场子的路上。", bed: "随时出征位", guide: "护肝片记得买好一点的，别年纪轻轻就秃了。" },
+        "STEL": { title: "快乐修狗", desc: "无忧无虑，没心没肺，主打陪伴。别人上课你占座，来大学主要为提供情绪价值。", bed: "门口迎宾位", guide: "你的快乐很有感染力，但不挂科才能继续快乐。" },
+        "SPIN": { title: "电子荒原狼", desc: "看着躺平，心里门清。有着自己极其狂热的冷门爱好，但懒得跟凡人解释。", bed: "上铺观星位", guide: "偶尔下凡接一下地气，你会发现凡间的美食也不错。" },
+        "SPIL": { title: "床板粘合剂", desc: "只要不下床，世界就与我无关。学费用来交网费，外卖靠室友用绳子吊上来。", bed: "靠插座续命位", guide: "下床走走吧，肌肉萎缩了连键盘都敲不动。" },
+        "SPEN": { title: "口嗨大帝", desc: "半夜三更在群里发宏愿要卷死所有人，第二天下午三点还在打呼噜。", bed: "下铺发梦位", guide: "少立Flag，多定闹钟。" },
+        "SPEL": { title: "纯种吗喽", desc: "大清亡了都不知道。作息混乱，啥也不干，没有目标，除了吃喝拉撒没别的追求。", bed: "随机掉落位", guide: "享受当下挺好的，只要别到毕业时对着简历哭就行。" }
     };
 
     let currentQ = 0;
     let scores = { CS: 0, TP: 0, IE: 0, NL: 0 };
     let userAnswers = [];
 
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
     function startTest() {
+        shuffleArray(questions);
         document.getElementById('welcome-page').classList.add('hidden');
         document.getElementById('quiz-page').classList.remove('hidden');
         renderQuestion();
@@ -92,7 +169,8 @@
         
         const q = questions[currentQ];
         document.getElementById('progress-bar').style.width = `${(currentQ / questions.length) * 100}%`;
-        document.getElementById('question-text').innerText = `${currentQ + 1}. ${q.text}`;
+        document.getElementById('question-count').innerText = `${currentQ + 1} / ${questions.length}`;
+        document.getElementById('question-text').innerText = q.text;
         
         const container = document.getElementById('options-container');
         container.innerHTML = '';
@@ -115,10 +193,10 @@
 
     function calculateResult() {
         const type = 
-            (scores.CS < 5 ? 'C' : 'S') +
-            (scores.TP < 5 ? 'T' : 'P') +
-            (scores.IE < 5 ? 'I' : 'E') +
-            (scores.NL < 5 ? 'N' : 'L');
+            (scores.CS < 15 ? 'C' : 'S') +
+            (scores.TP < 15 ? 'T' : 'P') +
+            (scores.IE < 15 ? 'I' : 'E') +
+            (scores.NL < 15 ? 'N' : 'L');
 
         showResult(type);
         submitDataToServer(type, scores, userAnswers);
@@ -128,7 +206,7 @@
         document.getElementById('quiz-page').classList.add('hidden');
         document.getElementById('result-page').classList.remove('hidden');
 
-        const resData = typeDict[type] || { title: "薛定谔的大学生", desc: "你的组合太神秘了。", bed: "随机掉落位", guide: "按你的节奏生活就好。" };
+        const resData = typeDict[type] || { title: "未知变异种", desc: "你的大学生活太抽象了。", bed: "走廊打地铺", guide: "做你自己就好。" };
 
         document.getElementById('result-type').innerText = type;
         document.getElementById('result-title').innerText = resData.title;
