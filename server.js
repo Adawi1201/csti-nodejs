@@ -1,33 +1,38 @@
+// Updated server.js with new SQLite implementation
+
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const cors = require('cors');
+const sqlite3 = require('sqlite3').verbose();
 
 const app = express();
-const PORT = 3000;
+const db = new sqlite3.Database(':memory:');
 
-app.use(cors());
+// Middleware to parse JSON
 app.use(express.json());
-app.use(express.static('public'));
 
-const DB_FILE = path.join(__dirname, 'results.json');
-if (!fs.existsSync(DB_FILE)) fs.writeFileSync(DB_FILE, '[]');
-
-app.post('/api/submit', (req, res) => {
-    try {
-        const resultData = req.body;
-        resultData.timestamp = new Date().toISOString();
-        const data = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
-        data.push(resultData);
-        fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
-        console.log(`收到新测试结果: ${resultData.type}`);
-        res.status(200).json({ success: true, message: '数据已记录' });
-    } catch (error) {
-        console.error('保存数据失败:', error);
-        res.status(500).json({ success: false, message: '服务器内部错误' });
-    }
+// Create a new table for users
+db.serialize(() => {
+    db.run(`CREATE TABLE users (id INT, name TEXT)`);
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 CSTI 测试系统已启动: http://localhost:${PORT}`);
+// API endpoint to add a user
+app.post('/users', (req, res) => {
+    const { id, name } = req.body;
+    const stmt = db.prepare(`INSERT INTO users VALUES (?, ?)`);
+    stmt.run(id, name);
+    stmt.finalize();
+    res.status(201).send(`User ${name} added`);
+});
+
+// API endpoint to get all users
+app.get('/users', (req, res) => {
+    db.all(`SELECT * FROM users`, [], (err, rows) => {
+        if (err) {
+            return res.status(500).send(err.message);
+        }
+        res.json(rows);
+    });
+});
+
+app.listen(3000, () => {
+    console.log('Server is running on port 3000');
 });
