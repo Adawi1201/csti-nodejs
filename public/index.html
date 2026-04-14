@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSTI 大学生人格测试</title>
+    <style>
+        body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        #app { max-width: 500px; width: 100%; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px; box-sizing: border-box; }
+        h1, h2 { text-align: center; color: #2c3e50; }
+        .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; background: #e9ecef; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; text-align: left; }
+        .btn:hover { background: #007bff; color: #fff; }
+        .btn-primary { background: #007bff; color: white; text-align: center; font-weight: bold; }
+        .btn-primary:hover { background: #0056b3; }
+        .progress { height: 8px; background: #e9ecef; border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
+        .progress-bar { height: 100%; background: #007bff; width: 0%; transition: width 0.3s; }
+        .hidden { display: none; }
+        .result-card { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        .tag { display: inline-block; padding: 4px 8px; background: #ffeeba; color: #856404; border-radius: 4px; font-size: 14px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div id="welcome-page">
+        <h1>CSTI 大学生人格测试</h1>
+        <p style="text-align: center; color: #666;">以 MBTI 为壳，宿舍生活为核的生存画像测试。</p>
+        <button class="btn btn-primary" onclick="startTest()">开始测试</button>
+        <p style="font-size: 12px; color: #999; margin-top: 30px; text-align: center;">⚠️ 仅供娱乐，严禁作为宿舍分配依据。</p>
+    </div>
+
+    <div id="quiz-page" class="hidden">
+        <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
+        <h2 id="question-text" style="font-size: 18px; margin-bottom: 20px;"></h2>
+        <div id="options-container"></div>
+    </div>
+
+    <div id="result-page" class="hidden">
+        <h2>你的 CSTI 类型是</h2>
+        <h1 id="result-type" style="color: #007bff; font-size: 36px; margin: 10px 0;"></h1>
+        <div class="tag" id="result-title"></div>
+        
+        <div class="result-card">
+            <p><strong>📝 核心判词：</strong><br><span id="result-desc"></span></p>
+            <p><strong>🛏️ 适合床位：</strong><br><span id="result-bed"></span></p>
+            <p><strong>💡 生存指南：</strong><br><span id="result-guide"></span></p>
+        </div>
+        
+        <button class="btn btn-primary" style="margin-top: 20px;" onclick="location.reload()">再测一次</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        { dim: 'CS', text: "明天是周六且没课没约，你会几点起床？", options: [
+            { text: "7:30 自然醒，甚至想去吃早饭", score: 0 }, { text: "9:30 醒，躺到 10:30 起", score: 3 },
+            { text: "11:30 醒，直接点外卖", score: 7 }, { text: "醒？我的周六从下午三点开始", score: 10 }
+        ]},
+        { dim: 'TP', text: "小组作业分好组后，你通常会？", options: [
+            { text: "主动建群、分任务、定 DDL", score: 0 }, { text: "等组长安排，按时完成自己部分", score: 3 },
+            { text: "群里潜水，被@了才领任务", score: 7 }, { text: "一直装死，直到组长私聊你", score: 10 }
+        ]},
+        { dim: 'IE', text: "周五晚上，你更想怎么过？", options: [
+            { text: "一个人看剧/打游戏/看书", score: 0 }, { text: "和一两个好朋友吃饭聊天", score: 3 },
+            { text: "宿舍/社团一群人出去聚餐唱 K", score: 7 }, { text: "赶场子，一晚上跑三个局", score: 10 }
+        ]},
+        { dim: 'NL', text: "关于未来（升学/工作），你的状态是？", options: [
+            { text: "已经有一条清晰路径在推进了", score: 0 }, { text: "大概有方向，但具体还没想好", score: 3 },
+            { text: "偶尔焦虑一下，然后继续躺着", score: 7 }, { text: "走一步看一步，毕业了再说", score: 10 }
+        ]}
+    ];
+
+    const typeDict = {
+        "CTIN": { title: "综测战神", desc: "作息稳、能力顶、目标清、爱独处。教室第一排不动产。", bed: "靠窗学霸位", guide: "保持节奏，但也别忘了偶尔摆烂有益身心健康。" },
+        "STEL": { title: "快乐修狗", desc: "主打陪伴。上课给室友占座，来人间凑数和提供情绪价值。", bed: "门口迎宾位", guide: "你的情绪价值很宝贵，不是谁都配拥有。" },
+        "SPIL": { title: "峡谷召唤师", desc: "学费主要交电费网费。王者印记全勤，原神地图100%。", bed: "靠插座位", guide: "记得每个月至少出一次校门，光合作用有益健康。" },
+        "CPEL": { title: "气氛组领班", desc: "哪都有他，但哪都没干啥。主要工作是陪聊陪吃陪拿快递。", bed: "任意游走位", guide: "气氛担当也是一种核心竞争力。" }
+    };
+
+    let currentQ = 0;
+    let scores = { CS: 0, TP: 0, IE: 0, NL: 0 };
+    let userAnswers = [];
+
+    function startTest() {
+        document.getElementById('welcome-page').classList.add('hidden');
+        document.getElementById('quiz-page').classList.remove('hidden');
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        if (currentQ >= questions.length) return calculateResult();
+        
+        const q = questions[currentQ];
+        document.getElementById('progress-bar').style.width = `${(currentQ / questions.length) * 100}%`;
+        document.getElementById('question-text').innerText = `${currentQ + 1}. ${q.text}`;
+        
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+        
+        q.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'btn';
+            btn.innerText = opt.text;
+            btn.onclick = () => answerQuestion(q.dim, opt.score, opt.text);
+            container.appendChild(btn);
+        });
+    }
+
+    function answerQuestion(dim, score, text) {
+        scores[dim] += score;
+        userAnswers.push({ question: questions[currentQ].text, answer: text });
+        currentQ++;
+        renderQuestion();
+    }
+
+    function calculateResult() {
+        const type = 
+            (scores.CS < 5 ? 'C' : 'S') +
+            (scores.TP < 5 ? 'T' : 'P') +
+            (scores.IE < 5 ? 'I' : 'E') +
+            (scores.NL < 5 ? 'N' : 'L');
+
+        showResult(type);
+        submitDataToServer(type, scores, userAnswers);
+    }
+
+    function showResult(type) {
+        document.getElementById('quiz-page').classList.add('hidden');
+        document.getElementById('result-page').classList.remove('hidden');
+
+        const resData = typeDict[type] || { title: "薛定谔的大学生", desc: "你的组合太神秘了。", bed: "随机掉落位", guide: "按你的节奏生活就好。" };
+
+        document.getElementById('result-type').innerText = type;
+        document.getElementById('result-title').innerText = resData.title;
+        document.getElementById('result-desc').innerText = resData.desc;
+        document.getElementById('result-bed').innerText = resData.bed;
+        document.getElementById('result-guide').innerText = resData.guide;
+    }
+
+    function submitDataToServer(type, scores, answers) {
+        fetch('/api/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type, scores, answers })
+        }).catch(err => console.log('数据收集错误(忽略即可):', err));
+    }
+</script>
+
+</body>
+</html>
